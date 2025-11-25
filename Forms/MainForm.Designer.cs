@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             panel1 = new Panel();
+            btnBrightnessContrast = new Button();
+            btnSave = new Button();
             btnThresh = new Button();
             btnGray = new Button();
             btnReset = new Button();
@@ -48,6 +50,8 @@
             // panel1
             // 
             panel1.BackColor = Color.FromArgb(224, 224, 224);
+            panel1.Controls.Add(btnBrightnessContrast);
+            panel1.Controls.Add(btnSave);
             panel1.Controls.Add(btnThresh);
             panel1.Controls.Add(btnGray);
             panel1.Controls.Add(btnReset);
@@ -59,9 +63,28 @@
             panel1.TabIndex = 0;
             panel1.Paint += panel1_Paint;
             // 
+            // btnBrightnessContrast
+            // 
+            btnBrightnessContrast.Location = new Point(417, 6);
+            btnBrightnessContrast.Name = "btnBrightnessContrast";
+            btnBrightnessContrast.Size = new Size(123, 23);
+            btnBrightnessContrast.TabIndex = 5;
+            btnBrightnessContrast.Text = "Brightness/Contrast";
+            btnBrightnessContrast.UseVisualStyleBackColor = true;
+            // 
+            // btnSave
+            // 
+            btnSave.Location = new Point(93, 6);
+            btnSave.Name = "btnSave";
+            btnSave.Size = new Size(75, 23);
+            btnSave.TabIndex = 4;
+            btnSave.Text = "Save";
+            btnSave.UseVisualStyleBackColor = true;
+            btnSave.Click += btnSave_Click;
+            // 
             // btnThresh
             // 
-            btnThresh.Location = new Point(255, 6);
+            btnThresh.Location = new Point(336, 6);
             btnThresh.Name = "btnThresh";
             btnThresh.Size = new Size(75, 23);
             btnThresh.TabIndex = 3;
@@ -71,7 +94,7 @@
             // 
             // btnGray
             // 
-            btnGray.Location = new Point(174, 6);
+            btnGray.Location = new Point(255, 6);
             btnGray.Name = "btnGray";
             btnGray.Size = new Size(75, 23);
             btnGray.TabIndex = 2;
@@ -81,7 +104,7 @@
             // 
             // btnReset
             // 
-            btnReset.Location = new Point(93, 6);
+            btnReset.Location = new Point(174, 6);
             btnReset.Name = "btnReset";
             btnReset.Size = new Size(75, 23);
             btnReset.TabIndex = 1;
@@ -101,6 +124,7 @@
             // 
             // pictureBoxOriginal
             // 
+            pictureBoxOriginal.BorderStyle = BorderStyle.FixedSingle;
             pictureBoxOriginal.Dock = DockStyle.Left;
             pictureBoxOriginal.Location = new Point(0, 32);
             pictureBoxOriginal.Name = "pictureBoxOriginal";
@@ -109,6 +133,7 @@
             pictureBoxOriginal.TabIndex = 1;
             pictureBoxOriginal.TabStop = false;
             pictureBoxOriginal.Click += pictureBoxOriginal_Click;
+            pictureBoxOriginal.MouseMove += pictureBoxOriginal_MouseMove;
             // 
             // pictureBox2
             // 
@@ -120,6 +145,7 @@
             // 
             // statusStrip1
             // 
+            statusStrip1.BackColor = Color.FromArgb(224, 224, 224);
             statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabelInfo });
             statusStrip1.Location = new Point(0, 610);
             statusStrip1.Name = "statusStrip1";
@@ -135,6 +161,7 @@
             // 
             // pictureBoxProcessed
             // 
+            pictureBoxProcessed.BorderStyle = BorderStyle.FixedSingle;
             pictureBoxProcessed.Dock = DockStyle.Right;
             pictureBoxProcessed.Location = new Point(566, 32);
             pictureBoxProcessed.Name = "pictureBoxProcessed";
@@ -142,6 +169,7 @@
             pictureBoxProcessed.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxProcessed.TabIndex = 4;
             pictureBoxProcessed.TabStop = false;
+            pictureBoxProcessed.MouseMove += pictureBoxProcessed_MouseMove;
             // 
             // MainForm
             // 
@@ -154,7 +182,7 @@
             Controls.Add(panel1);
             Controls.Add(statusStrip1);
             Name = "MainForm";
-            Text = "Form1";
+            Text = "Mini Vision Inspector";
             panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBoxOriginal).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
@@ -177,5 +205,7 @@
         private StatusStrip statusStrip1;
         private PictureBox pictureBoxProcessed;
         private ToolStripStatusLabel toolStripStatusLabelInfo;
+        private Button btnSave;
+        private Button btnBrightnessContrast;
     }
 }

@@ -1,5 +1,7 @@
 using MiniVisionInspector.Services;
 using MiniVisionInspector.Forms;
+using System.IO;
+using System.Drawing.Imaging;
 
 namespace MiniVisionInspector
 {
@@ -46,7 +48,7 @@ namespace MiniVisionInspector
 
         private void btnReset_Click(object sender, EventArgs e)
         {
-            if(_originalImage is null)
+            if (_originalImage is null)
             {
                 toolStripStatusLabelInfo.Text = "원본 이미지가 없습니다";
                 return;
@@ -54,7 +56,7 @@ namespace MiniVisionInspector
 
             _currentImage?.Dispose();
             _currentImage = (Bitmap)_originalImage.Clone();
-            pictureBoxProcessed.Image= _currentImage;
+            pictureBoxProcessed.Image = _currentImage;
 
             toolStripStatusLabelInfo.Text = "변경 사항 폐기 완료";
         }
@@ -71,7 +73,7 @@ namespace MiniVisionInspector
             _currentImage = ImageProcessor.ToGrayScale(src);
             src.Dispose();
 
-            pictureBoxProcessed.Image=_currentImage;
+            pictureBoxProcessed.Image = _currentImage;
             toolStripStatusLabelInfo.Text = "그레이스케일 변환 완료";
         }
 
@@ -83,11 +85,11 @@ namespace MiniVisionInspector
                 return;
             }
 
-            using(var dlg = new Threshold(_lastThreshold))
+            using (var dlg = new Threshold(_lastThreshold))
             {
                 var result = dlg.ShowDialog(this);
 
-                if(result != DialogResult.OK)
+                if (result != DialogResult.OK)
                 {
                     toolStripStatusLabelInfo.Text = "이진화 취소";
                     return;
@@ -105,13 +107,161 @@ namespace MiniVisionInspector
 
                 pictureBoxProcessed.Image = _currentImage;
                 toolStripStatusLabelInfo.Text = $"이진화(threshold = {th}) 완료";
-            }                       
+            }
         }
 
         private void pictureBoxOriginal_Click(object sender, EventArgs e)
         {
 
         }
+
+        //사진창 위에서 마우스 움직일 때 좌표와 RGB 값 표시용
+        private void pictureBoxOriginal_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_currentImage == null || pictureBoxProcessed.Image == null)
+            {
+                toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요.";
+                return;
+            }
+
+            var img = _currentImage;
+
+            //사진창과 이미지의 비율 계산
+            float imgAspect = (float)img.Width / img.Height;
+            float boxAspect = (float)pictureBoxProcessed.Width / pictureBoxProcessed.Height;
+
+            int drawWidth, drawHeight;
+            int offsetX, offsetY;
+
+            if (imgAspect > boxAspect)  //가로가 더 긴 경우
+            {
+                drawWidth = pictureBoxProcessed.Width;
+                drawHeight = (int)(pictureBoxProcessed.Width / imgAspect);
+                offsetX = 0;
+                offsetY = (pictureBoxProcessed.Height - drawHeight) / 2;
+            }
+            else
+            {
+                drawHeight = pictureBoxProcessed.Height;
+                drawWidth = (int)(pictureBoxProcessed.Height * imgAspect);
+                offsetY = 0;
+                offsetX = (pictureBoxProcessed.Width - drawWidth) / 2;
+            }
+
+            // 마우스 좌표 -> 이미지 좌표 변환
+            int x = (int)((e.X - offsetX) * (float)img.Width / drawWidth);
+            int y = (int)((e.Y - offsetY) * (float)img.Height / drawHeight);
+
+            // 이미지 영역 밖인 경우
+            if (x < 0 || y < 0 || x >= img.Width || y >= img.Height)
+            {
+                return;
+            }
+
+            Color c = img.GetPixel(x, y);
+            toolStripStatusLabelInfo.Text = $"X={x}, Y={y}       R={c.R}, G={c.G}, B={c.B}";
+        }
+
+        private void pictureBoxProcessed_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_currentImage == null || pictureBoxProcessed.Image == null)
+            {
+                toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요.";
+                return;
+            }
+
+            var img = _currentImage;
+
+            //사진창과 이미지의 비율 계산
+            float imgAspect = (float)img.Width / img.Height;
+            float boxAspect = (float)pictureBoxProcessed.Width / pictureBoxProcessed.Height;
+
+            int drawWidth, drawHeight;
+            int offsetX, offsetY;
+
+            if (imgAspect > boxAspect)  //가로가 더 긴 경우
+            {
+                drawWidth = pictureBoxProcessed.Width;
+                drawHeight = (int)(pictureBoxProcessed.Width / imgAspect);
+                offsetX = 0;
+                offsetY = (pictureBoxProcessed.Height - drawHeight) / 2;
+            }
+            else
+            {
+                drawHeight = pictureBoxProcessed.Height;
+                drawWidth = (int)(pictureBoxProcessed.Height * imgAspect);
+                offsetY = 0;
+                offsetX = (pictureBoxProcessed.Width - drawWidth) / 2;
+            }
+
+            // 마우스 좌표 -> 이미지 좌표 변환
+            int x = (int)((e.X - offsetX) * (float)img.Width / drawWidth);
+            int y = (int)((e.Y - offsetY) * (float)img.Height / drawHeight);
+
+            // 이미지 영역 밖인 경우
+            if (x < 0 || y < 0 || x >= img.Width || y >= img.Height)
+            {
+                return;
+            }
+
+            Color c = img.GetPixel(x, y);
+            toolStripStatusLabelInfo.Text = $"X={x}, Y={y}       R={c.R}, G={c.G}, B={c.B}";
+        }
+
+        // 결과 이미지 저장
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            if(_currentImage is null)
+            {
+                toolStripStatusLabelInfo.Text = "저장할 이미지 없음";
+                return;
+            }
+
+            using(var sfd = new SaveFileDialog())
+            {
+                sfd.Title = "이미지 저장";
+                sfd.Filter = "PNG 이미지|*.png|JPEG 이미지|*.jpg;*.jpeg|BMP 이미지|*.bmp|모든 파일|*.*";
+                sfd.FileName = "result.png";
+
+                if (sfd.ShowDialog(this) == DialogResult.OK)
+                {
+                    try
+                    {
+                        string ext = Path.GetExtension(sfd.FileName).ToLowerInvariant();
+                        ImageFormat format;
+
+                        switch (ext)
+                        {
+                            case ".jpg":
+                            case ".jpeg":
+                                format = ImageFormat.Jpeg;
+                                break;
+                            case ".bmp":
+                                format = ImageFormat.Bmp;
+                                break;
+                            case ".png":
+                            default:
+                                format = ImageFormat.Png;
+                                break;
+                        }
+
+                        _currentImage.Save(sfd.FileName, format);
+                        toolStripStatusLabelInfo.Text = $"이미지 저장 완료: {sfd.FileName}";
+
+                    }
+                    catch (Exception)
+                    {
+                        toolStripStatusLabelInfo.Text = "이미지 저장 중 오류 발생";
+                    }
+                }
+                else
+                {
+                    toolStripStatusLabelInfo.Text = "이미지 저장 취소";
+                }
+            }
+        }
+
+
 
     }
 }
