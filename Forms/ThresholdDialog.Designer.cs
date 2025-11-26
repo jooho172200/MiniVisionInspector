@@ -40,7 +40,7 @@
             // 
             // trackBarThreshold
             // 
-            trackBarThreshold.Location = new Point(182, 100);
+            trackBarThreshold.Location = new Point(138, 91);
             trackBarThreshold.Maximum = 255;
             trackBarThreshold.Name = "trackBarThreshold";
             trackBarThreshold.Size = new Size(272, 45);
@@ -52,7 +52,7 @@
             // labelValue
             // 
             labelValue.AutoSize = true;
-            labelValue.Location = new Point(114, 102);
+            labelValue.Location = new Point(70, 93);
             labelValue.Name = "labelValue";
             labelValue.Size = new Size(62, 15);
             labelValue.TabIndex = 1;
@@ -62,7 +62,7 @@
             // btnOk
             // 
             btnOk.DialogResult = DialogResult.OK;
-            btnOk.Location = new Point(225, 197);
+            btnOk.Location = new Point(181, 188);
             btnOk.Name = "btnOk";
             btnOk.Size = new Size(79, 27);
             btnOk.TabIndex = 3;
@@ -72,7 +72,7 @@
             // btnCancel
             // 
             btnCancel.DialogResult = DialogResult.Cancel;
-            btnCancel.Location = new Point(330, 197);
+            btnCancel.Location = new Point(286, 188);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new Size(79, 27);
             btnCancel.TabIndex = 4;
@@ -81,7 +81,7 @@
             // 
             // numericThreshold
             // 
-            numericThreshold.Location = new Point(460, 100);
+            numericThreshold.Location = new Point(416, 91);
             numericThreshold.Maximum = new decimal(new int[] { 255, 0, 0, 0 });
             numericThreshold.Name = "numericThreshold";
             numericThreshold.Size = new Size(81, 23);
@@ -92,7 +92,7 @@
             // checkBoxBitInverse
             // 
             checkBoxBitInverse.AutoSize = true;
-            checkBoxBitInverse.Location = new Point(114, 151);
+            checkBoxBitInverse.Location = new Point(70, 142);
             checkBoxBitInverse.Name = "checkBoxBitInverse";
             checkBoxBitInverse.Size = new Size(81, 19);
             checkBoxBitInverse.TabIndex = 6;
@@ -106,7 +106,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = btnCancel;
-            ClientSize = new Size(657, 262);
+            ClientSize = new Size(584, 261);
             Controls.Add(checkBoxBitInverse);
             Controls.Add(numericThreshold);
             Controls.Add(btnCancel);

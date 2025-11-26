@@ -63,6 +63,46 @@ namespace MiniVisionInspector.Services
 
             return dst;
         }
+
+        public static Bitmap AdjustBrightnessContrast(Bitmap src, int brightness, int contrast)
+        {
+            var dst = new Bitmap(src.Width, src.Height);
+
+            double c = (100.0 + contrast) / 100.0;
+            c *= c;
+
+            for (int y = 0; y < src.Height; y++)
+            {
+                for (int x = 0; x < src.Width; x++)
+                {
+                    Color col = src.GetPixel(x, y);
+
+                    int r = AdjustChannel(col.R, brightness, c);
+                    int g = AdjustChannel(col.G, brightness, c);
+                    int b = AdjustChannel(col.B, brightness, c);
+
+                    dst.SetPixel(x, y, Color.FromArgb(r, g, b));
+                }
+            }
+
+            return dst;
+        }
+
+        private static int AdjustChannel(int value, int brightness, double contrastFactor)
+        {
+            // 0~255 범위에서 중간값(128) 기준으로 contrast 조절
+            double v = value / 255.0;
+            v -= 0.5;
+            v *= contrastFactor;
+            v += 0.5;
+
+            v *= 255.0;
+            v += brightness; // 밝기 더하기
+
+            if (v < 0) v = 0;
+            if (v > 255) v = 255;
+            return (int)v;
+        }
     }
 
 }

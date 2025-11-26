@@ -71,6 +71,7 @@
             btnBrightnessContrast.TabIndex = 5;
             btnBrightnessContrast.Text = "Brightness/Contrast";
             btnBrightnessContrast.UseVisualStyleBackColor = true;
+            btnBrightnessContrast.Click += btnBrightnessContrast_Click;
             // 
             // btnSave
             // 

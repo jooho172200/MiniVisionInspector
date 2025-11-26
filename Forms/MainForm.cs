@@ -13,6 +13,9 @@ namespace MiniVisionInspector
         private int _lastThreshold = 127;
         private bool _lastInvert = false;
 
+        private int _lastBrightness = 0;
+        private int _lastContrast = 0;
+
         public MainForm()
         {
             InitializeComponent();
@@ -211,13 +214,13 @@ namespace MiniVisionInspector
         // 결과 이미지 저장
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if(_currentImage is null)
+            if (_currentImage is null)
             {
                 toolStripStatusLabelInfo.Text = "저장할 이미지 없음";
                 return;
             }
 
-            using(var sfd = new SaveFileDialog())
+            using (var sfd = new SaveFileDialog())
             {
                 sfd.Title = "이미지 저장";
                 sfd.Filter = "PNG 이미지|*.png|JPEG 이미지|*.jpg;*.jpeg|BMP 이미지|*.bmp|모든 파일|*.*";
@@ -261,7 +264,35 @@ namespace MiniVisionInspector
             }
         }
 
+        private void btnBrightnessContrast_Click(object sender, EventArgs e)
+        {
+            if (_currentImage is null)
+            {
+                toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요.";
+                return;
+            }
 
+            using (var dlg = new BrightnessContrast(_lastBrightness, _lastContrast))
+            {
+                if (dlg.ShowDialog(this) != DialogResult.OK)
+                {
+                    toolStripStatusLabelInfo.Text = "밝기/대비 조정 취소";
+                    return;
+                }
 
+                int b = dlg.Brightness;
+                int c = dlg.Contrast;
+
+                _lastBrightness = b;
+                _lastContrast = c;
+
+                var src = _currentImage;
+                _currentImage = ImageProcessor.AdjustBrightnessContrast(src, b, c);
+                src.Dispose();
+
+                pictureBoxProcessed.Image = _currentImage;
+                toolStripStatusLabelInfo.Text = $"밝기={b}, 대비={c} 적용완료";
+}
+        }
     }
 }
