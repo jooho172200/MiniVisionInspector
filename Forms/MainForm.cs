@@ -16,6 +16,8 @@ namespace MiniVisionInspector
         private int _lastBrightness = 0;
         private int _lastContrast = 0;
 
+        private readonly Stack<Bitmap> _history = new Stack<Bitmap>();
+
         public MainForm()
         {
             InitializeComponent();
@@ -44,6 +46,8 @@ namespace MiniVisionInspector
                     pictureBoxOriginal.Image = _originalImage;
                     pictureBoxProcessed.Image = _currentImage;
 
+                    ClearHistory();
+
                     toolStripStatusLabelInfo.Text = $"이미지 로드: {ofd.FileName}";
                 }
             }
@@ -71,6 +75,8 @@ namespace MiniVisionInspector
                 toolStripStatusLabelInfo.Text = "원본 이미지가 없습니다";
                 return;
             }
+
+            PushHistory();
 
             var src = _currentImage;
             _currentImage = ImageProcessor.ToGrayScale(src);
@@ -103,6 +109,8 @@ namespace MiniVisionInspector
 
                 _lastThreshold = th;
                 _lastInvert = invert;
+
+                PushHistory();
 
                 var src = _currentImage;
                 _currentImage = ImageProcessor.Threshold(src, th, invert);
@@ -286,13 +294,49 @@ namespace MiniVisionInspector
                 _lastBrightness = b;
                 _lastContrast = c;
 
+                PushHistory();
+
                 var src = _currentImage;
                 _currentImage = ImageProcessor.AdjustBrightnessContrast(src, b, c);
                 src.Dispose();
 
                 pictureBoxProcessed.Image = _currentImage;
                 toolStripStatusLabelInfo.Text = $"밝기={b}, 대비={c} 적용완료";
-}
+            }
+        }
+
+        // 현재 이미지를 히스토리에 저장
+        private void PushHistory()
+        {
+            if (_currentImage is not null)
+            {
+                _history.Push((Bitmap)_currentImage.Clone());
+            }
+        }
+
+        // 새 이미지 열 때, 히스토리 초기화
+        private void ClearHistory()
+        {
+            while (_history.Count > 0)
+            {
+                var bmp = _history.Pop();
+                bmp.Dispose();
+            }
+        }
+
+        private void btnUndo_Click(object sender, EventArgs e)
+        {
+            if(_history.Count == 0)
+            {
+                toolStripStatusLabelInfo.Text = "되돌릴 작업이 없습니다";
+                return;
+            }
+
+            _currentImage?.Dispose();
+            _currentImage = _history.Pop();
+
+            pictureBoxProcessed.Image = _currentImage;
+            toolStripStatusLabelInfo.Text = "Undo 완료";
         }
     }
 }

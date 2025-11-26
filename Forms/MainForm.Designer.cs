@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             panel1 = new Panel();
+            btnUndo = new Button();
             btnBrightnessContrast = new Button();
             btnSave = new Button();
             btnThresh = new Button();
@@ -50,6 +51,7 @@
             // panel1
             // 
             panel1.BackColor = Color.FromArgb(224, 224, 224);
+            panel1.Controls.Add(btnUndo);
             panel1.Controls.Add(btnBrightnessContrast);
             panel1.Controls.Add(btnSave);
             panel1.Controls.Add(btnThresh);
@@ -63,9 +65,19 @@
             panel1.TabIndex = 0;
             panel1.Paint += panel1_Paint;
             // 
+            // btnUndo
+            // 
+            btnUndo.Location = new Point(174, 6);
+            btnUndo.Name = "btnUndo";
+            btnUndo.Size = new Size(75, 23);
+            btnUndo.TabIndex = 6;
+            btnUndo.Text = "Undo";
+            btnUndo.UseVisualStyleBackColor = true;
+            btnUndo.Click += btnUndo_Click;
+            // 
             // btnBrightnessContrast
             // 
-            btnBrightnessContrast.Location = new Point(417, 6);
+            btnBrightnessContrast.Location = new Point(537, 6);
             btnBrightnessContrast.Name = "btnBrightnessContrast";
             btnBrightnessContrast.Size = new Size(123, 23);
             btnBrightnessContrast.TabIndex = 5;
@@ -85,7 +97,7 @@
             // 
             // btnThresh
             // 
-            btnThresh.Location = new Point(336, 6);
+            btnThresh.Location = new Point(456, 6);
             btnThresh.Name = "btnThresh";
             btnThresh.Size = new Size(75, 23);
             btnThresh.TabIndex = 3;
@@ -95,7 +107,7 @@
             // 
             // btnGray
             // 
-            btnGray.Location = new Point(255, 6);
+            btnGray.Location = new Point(375, 6);
             btnGray.Name = "btnGray";
             btnGray.Size = new Size(75, 23);
             btnGray.TabIndex = 2;
@@ -105,7 +117,7 @@
             // 
             // btnReset
             // 
-            btnReset.Location = new Point(174, 6);
+            btnReset.Location = new Point(255, 6);
             btnReset.Name = "btnReset";
             btnReset.Size = new Size(75, 23);
             btnReset.TabIndex = 1;
@@ -208,5 +220,6 @@
         private ToolStripStatusLabel toolStripStatusLabelInfo;
         private Button btnSave;
         private Button btnBrightnessContrast;
+        private Button btnUndo;
     }
 }
