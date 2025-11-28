@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             panel1 = new Panel();
+            btnCanny = new Button();
+            btnSharpen = new Button();
             btnBlur = new Button();
             btnUndo = new Button();
             btnBrightnessContrast = new Button();
@@ -38,21 +40,21 @@
             btnReset = new Button();
             btnOpen = new Button();
             pictureBoxOriginal = new PictureBox();
-            pictureBox2 = new PictureBox();
             statusStrip1 = new StatusStrip();
             toolStripStatusLabelInfo = new ToolStripStatusLabel();
             pictureBoxProcessed = new PictureBox();
-            btnSharpen = new Button();
+            tableLayoutPanel1 = new TableLayoutPanel();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOriginal).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxProcessed).BeginInit();
+            tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
             // 
             panel1.BackColor = Color.FromArgb(224, 224, 224);
+            panel1.Controls.Add(btnCanny);
             panel1.Controls.Add(btnSharpen);
             panel1.Controls.Add(btnBlur);
             panel1.Controls.Add(btnUndo);
@@ -65,9 +67,31 @@
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1132, 32);
+            panel1.Size = new Size(1188, 32);
             panel1.TabIndex = 0;
             panel1.Paint += panel1_Paint;
+            // 
+            // btnCanny
+            // 
+            btnCanny.BackColor = Color.FromArgb(128, 255, 128);
+            btnCanny.ImageAlign = ContentAlignment.MiddleLeft;
+            btnCanny.Location = new Point(828, 6);
+            btnCanny.Name = "btnCanny";
+            btnCanny.Size = new Size(75, 23);
+            btnCanny.TabIndex = 9;
+            btnCanny.Text = "Canny";
+            btnCanny.UseVisualStyleBackColor = false;
+            btnCanny.Click += btnCanny_Click;
+            // 
+            // btnSharpen
+            // 
+            btnSharpen.Location = new Point(747, 6);
+            btnSharpen.Name = "btnSharpen";
+            btnSharpen.Size = new Size(75, 23);
+            btnSharpen.TabIndex = 8;
+            btnSharpen.Text = "Sharpen";
+            btnSharpen.UseVisualStyleBackColor = true;
+            btnSharpen.Click += btnSharpen_Click;
             // 
             // btnBlur
             // 
@@ -152,31 +176,23 @@
             // pictureBoxOriginal
             // 
             pictureBoxOriginal.BorderStyle = BorderStyle.FixedSingle;
-            pictureBoxOriginal.Dock = DockStyle.Left;
-            pictureBoxOriginal.Location = new Point(0, 32);
+            pictureBoxOriginal.Dock = DockStyle.Fill;
+            pictureBoxOriginal.Location = new Point(3, 3);
             pictureBoxOriginal.Name = "pictureBoxOriginal";
-            pictureBoxOriginal.Size = new Size(566, 578);
+            pictureBoxOriginal.Size = new Size(588, 642);
             pictureBoxOriginal.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxOriginal.TabIndex = 1;
             pictureBoxOriginal.TabStop = false;
             pictureBoxOriginal.Click += pictureBoxOriginal_Click;
             pictureBoxOriginal.MouseMove += pictureBoxOriginal_MouseMove;
             // 
-            // pictureBox2
-            // 
-            pictureBox2.Location = new Point(635, 63);
-            pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(0, 0);
-            pictureBox2.TabIndex = 2;
-            pictureBox2.TabStop = false;
-            // 
             // statusStrip1
             // 
             statusStrip1.BackColor = Color.FromArgb(224, 224, 224);
             statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabelInfo });
-            statusStrip1.Location = new Point(0, 610);
+            statusStrip1.Location = new Point(0, 680);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1132, 22);
+            statusStrip1.Size = new Size(1188, 22);
             statusStrip1.TabIndex = 3;
             statusStrip1.Text = "statusStrip1";
             // 
@@ -189,43 +205,46 @@
             // pictureBoxProcessed
             // 
             pictureBoxProcessed.BorderStyle = BorderStyle.FixedSingle;
-            pictureBoxProcessed.Dock = DockStyle.Right;
-            pictureBoxProcessed.Location = new Point(566, 32);
+            pictureBoxProcessed.Dock = DockStyle.Fill;
+            pictureBoxProcessed.Location = new Point(597, 3);
             pictureBoxProcessed.Name = "pictureBoxProcessed";
-            pictureBoxProcessed.Size = new Size(566, 578);
+            pictureBoxProcessed.Size = new Size(588, 642);
             pictureBoxProcessed.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxProcessed.TabIndex = 4;
             pictureBoxProcessed.TabStop = false;
             pictureBoxProcessed.MouseMove += pictureBoxProcessed_MouseMove;
             // 
-            // btnSharpen
+            // tableLayoutPanel1
             // 
-            btnSharpen.Location = new Point(747, 6);
-            btnSharpen.Name = "btnSharpen";
-            btnSharpen.Size = new Size(75, 23);
-            btnSharpen.TabIndex = 8;
-            btnSharpen.Text = "Sharpen";
-            btnSharpen.UseVisualStyleBackColor = true;
-            btnSharpen.Click += btnSharpen_Click;
+            tableLayoutPanel1.ColumnCount = 2;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel1.Controls.Add(pictureBoxOriginal, 0, 0);
+            tableLayoutPanel1.Controls.Add(pictureBoxProcessed, 1, 0);
+            tableLayoutPanel1.Dock = DockStyle.Fill;
+            tableLayoutPanel1.Location = new Point(0, 32);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 1;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.Size = new Size(1188, 648);
+            tableLayoutPanel1.TabIndex = 5;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1132, 632);
-            Controls.Add(pictureBoxProcessed);
-            Controls.Add(pictureBox2);
-            Controls.Add(pictureBoxOriginal);
+            ClientSize = new Size(1188, 702);
+            Controls.Add(tableLayoutPanel1);
             Controls.Add(panel1);
             Controls.Add(statusStrip1);
             Name = "MainForm";
             Text = "Mini Vision Inspector";
             panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBoxOriginal).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             statusStrip1.ResumeLayout(false);
             statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxProcessed).EndInit();
+            tableLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -238,7 +257,6 @@
         private Button btnThresh;
         private Button btnGray;
         private PictureBox pictureBoxOriginal;
-        private PictureBox pictureBox2;
         private StatusStrip statusStrip1;
         private PictureBox pictureBoxProcessed;
         private ToolStripStatusLabel toolStripStatusLabelInfo;
@@ -247,5 +265,7 @@
         private Button btnUndo;
         private Button btnBlur;
         private Button btnSharpen;
+        private Button btnCanny;
+        private TableLayoutPanel tableLayoutPanel1;
     }
 }

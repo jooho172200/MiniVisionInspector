@@ -364,17 +364,37 @@ namespace MiniVisionInspector
             if (_currentImage is null)
             {
                 toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
+                return;
             }
 
             PushHistory();
 
             var src = _currentImage;
-            _currentImage= ImageProcessor.Sharpen(src);
+            _currentImage = ImageProcessor.Sharpen(src);
             src.Dispose();
 
             pictureBoxProcessed.Image = _currentImage;
             toolStripStatusLabelInfo.Text = "샤프닝 필터 적용 완료";
 
+        }
+
+        // OpenCV
+        private void btnCanny_Click(object sender, EventArgs e)
+        {
+            if (_currentImage is null)
+            {
+                toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
+                return;
+            }
+
+            PushHistory();
+
+            var src = _currentImage;
+            _currentImage = ImageProcessor.Canny(src, 100, 200);
+            src.Dispose();
+
+            pictureBoxProcessed.Image = _currentImage;
+            toolStripStatusLabelInfo.Text = "Canny 엣지 검출 완료";
         }
     }
 }

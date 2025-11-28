@@ -1,8 +1,11 @@
-﻿using System;
+﻿using OpenCvSharp.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
 
 namespace MiniVisionInspector.Services
 {
@@ -198,7 +201,17 @@ namespace MiniVisionInspector.Services
             return dst;
         }
 
+        public static Bitmap Canny(Bitmap src, double lower, double upper)
+        {
+            using var mat = BitmapConverter.ToMat(src);
+            using var gray = new Mat();
+            using var edges = new Mat();
 
+            Cv2.CvtColor(mat, gray, ColorConversionCodes.BGR2BGRA);
+            Cv2.Canny(gray, edges, lower, upper);
+
+            return BitmapConverter.ToBitmap(edges);
+        }
     }
 
 }
