@@ -383,5 +383,85 @@ namespace MiniVisionInspector
 
             toolStripStatusLabelInfo.Text = "Canny 엣지 검출 완료";
         }
+
+        private void btnErode_Click(object sender, EventArgs e)
+        {
+            if (_currentImage is null)
+            {
+                toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
+                return;
+            }
+
+            PushHistory();
+
+            var src = _currentImage;
+            _currentImage = ImageProcessor.Erode(src);
+            src.Dispose();
+
+            _showOriginal = false;
+            RefreshImage();
+
+            toolStripStatusLabelInfo.Text = "Erode 적용 완료";
+        }
+
+        private void btnDilate_Click(object sender, EventArgs e)
+        {
+            if (_currentImage is null)
+            {
+                toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
+                return;
+            }
+
+            PushHistory();
+
+            var src = _currentImage;
+            _currentImage = ImageProcessor.Dilate(src, 3);
+            src.Dispose();
+
+            _showOriginal = false;
+            RefreshImage();
+
+            toolStripStatusLabelInfo.Text = "Dilate 적용 완료";
+        }
+
+        private void btnOpenMorph_Click(object sender, EventArgs e)
+        {
+            if (_currentImage is null)
+            {
+                toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
+                return;
+            }
+
+            PushHistory();
+
+            var src = _currentImage;
+            _currentImage = ImageProcessor.OpenMorph(src, 3);
+            src.Dispose();
+
+            _showOriginal = false;
+            RefreshImage();
+
+            toolStripStatusLabelInfo.Text = "Open 모폴로지 적용 완료";
+        }
+
+        private void btnCloseMorph_Click(object sender, EventArgs e)
+        {
+            if (_currentImage is null)
+            {
+                toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
+                return;
+            }
+
+            PushHistory();
+
+            var src = _currentImage;
+            _currentImage = ImageProcessor.CloseMorph(src, 3);
+            src.Dispose();
+
+            _showOriginal = false;
+            RefreshImage();
+
+            toolStripStatusLabelInfo.Text = "Close 모폴로지 적용 완료";
+        }
     }
 }

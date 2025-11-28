@@ -11,6 +11,16 @@ namespace MiniVisionInspector.Services
 {
     internal class ImageProcessor
     {
+        private static Mat ToMat(Bitmap src)
+        {
+            return BitmapConverter.ToMat(src);
+        }
+
+        private static Bitmap ToBitmap(Mat mat)
+        {
+            return BitmapConverter.ToBitmap(mat);
+        }
+
         public static Bitmap ToGrayScale(Bitmap src)
         {
             var dst = new Bitmap(src.Width, src.Height);
@@ -203,14 +213,77 @@ namespace MiniVisionInspector.Services
 
         public static Bitmap Canny(Bitmap src, double lower, double upper)
         {
-            using var mat = BitmapConverter.ToMat(src);
+            using var mat = ToMat(src);
             using var gray = new Mat();
             using var edges = new Mat();
 
-            Cv2.CvtColor(mat, gray, ColorConversionCodes.BGR2BGRA);
+            Cv2.CvtColor(mat, gray, ColorConversionCodes.BGR2GRAY);
             Cv2.Canny(gray, edges, lower, upper);
 
-            return BitmapConverter.ToBitmap(edges);
+            return ToBitmap(edges);
+        }
+
+        public static Bitmap Erode(Bitmap src, int kernelSize = 3)
+        {
+            using var matSrc = ToMat(src);
+            using var matDst = new Mat();
+
+            using var kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(kernelSize, kernelSize));
+
+            Cv2.Erode(matSrc, matDst, kernel);
+
+            return ToBitmap(matDst);
+
+        }
+
+        public static Bitmap Dilate(Bitmap src, int kernelSize = 3)
+        {
+            using var matSrc = ToMat(src);
+            using var matDst = new Mat();
+
+            using var kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(kernelSize, kernelSize));
+
+            Cv2.Dilate(matSrc, matDst, kernel);
+
+            return ToBitmap(matDst);
+        }
+
+        public static Bitmap OpenMorph(Bitmap src, int kernelSize = 3)
+        {
+            using var matSrc = ToMat(src);
+            using var matDst = new Mat();
+
+            using var kernel = Cv2.GetStructuringElement(
+                MorphShapes.Rect,
+                new OpenCvSharp.Size(kernelSize, kernelSize));
+
+            // 열기: Erode -> Dilate
+            Cv2.MorphologyEx(
+                matSrc,
+                matDst,
+                MorphTypes.Open,
+                kernel);
+
+            return ToBitmap(matDst);
+        }
+
+        public static Bitmap CloseMorph(Bitmap src, int kernelSize = 3)
+        {
+            using var matSrc = ToMat(src);
+            using var matDst = new Mat();
+
+            using var kernel = Cv2.GetStructuringElement(
+                MorphShapes.Rect,
+                new OpenCvSharp.Size(kernelSize, kernelSize));
+
+            // 닫기: Dilate -> Erode
+            Cv2.MorphologyEx(
+                matSrc,
+                matDst,
+                MorphTypes.Close,
+                kernel);
+
+            return ToBitmap(matDst);
         }
     }
 

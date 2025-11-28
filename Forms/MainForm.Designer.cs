@@ -43,15 +43,29 @@
             statusStrip1 = new StatusStrip();
             toolStripStatusLabelInfo = new ToolStripStatusLabel();
             tableLayoutPanel1 = new TableLayoutPanel();
+            splitMain = new SplitContainer();
+            panelHistory = new Panel();
+            btnErode = new Button();
+            btnDilate = new Button();
+            btnOpenMorph = new Button();
+            btnCloseMorph = new Button();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxMain).BeginInit();
             statusStrip1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitMain).BeginInit();
+            splitMain.Panel1.SuspendLayout();
+            splitMain.Panel2.SuspendLayout();
+            splitMain.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
             // 
             panel1.BackColor = Color.FromArgb(224, 224, 224);
+            panel1.Controls.Add(btnCloseMorph);
+            panel1.Controls.Add(btnOpenMorph);
+            panel1.Controls.Add(btnDilate);
+            panel1.Controls.Add(btnErode);
             panel1.Controls.Add(btnCanny);
             panel1.Controls.Add(btnSharpen);
             panel1.Controls.Add(btnBlur);
@@ -65,7 +79,7 @@
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1188, 32);
+            panel1.Size = new Size(1188, 64);
             panel1.TabIndex = 0;
             panel1.Paint += panel1_Paint;
             // 
@@ -73,7 +87,7 @@
             // 
             btnCanny.BackColor = Color.FromArgb(128, 255, 128);
             btnCanny.ImageAlign = ContentAlignment.MiddleLeft;
-            btnCanny.Location = new Point(828, 6);
+            btnCanny.Location = new Point(375, 35);
             btnCanny.Name = "btnCanny";
             btnCanny.Size = new Size(75, 23);
             btnCanny.TabIndex = 9;
@@ -177,7 +191,7 @@
             pictureBoxMain.Dock = DockStyle.Fill;
             pictureBoxMain.Location = new Point(3, 3);
             pictureBoxMain.Name = "pictureBoxMain";
-            pictureBoxMain.Size = new Size(1182, 642);
+            pictureBoxMain.Size = new Size(938, 610);
             pictureBoxMain.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxMain.TabIndex = 1;
             pictureBoxMain.TabStop = false;
@@ -206,19 +220,93 @@
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel1.Controls.Add(pictureBoxMain, 0, 0);
             tableLayoutPanel1.Dock = DockStyle.Fill;
-            tableLayoutPanel1.Location = new Point(0, 32);
+            tableLayoutPanel1.Location = new Point(0, 0);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 1;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel1.Size = new Size(1188, 648);
+            tableLayoutPanel1.Size = new Size(944, 616);
             tableLayoutPanel1.TabIndex = 5;
+            // 
+            // splitMain
+            // 
+            splitMain.Dock = DockStyle.Fill;
+            splitMain.Location = new Point(0, 64);
+            splitMain.Name = "splitMain";
+            // 
+            // splitMain.Panel1
+            // 
+            splitMain.Panel1.Controls.Add(panelHistory);
+            // 
+            // splitMain.Panel2
+            // 
+            splitMain.Panel2.Controls.Add(tableLayoutPanel1);
+            splitMain.Size = new Size(1188, 616);
+            splitMain.SplitterDistance = 240;
+            splitMain.TabIndex = 6;
+            // 
+            // panelHistory
+            // 
+            panelHistory.BorderStyle = BorderStyle.FixedSingle;
+            panelHistory.Dock = DockStyle.Fill;
+            panelHistory.Location = new Point(0, 0);
+            panelHistory.Name = "panelHistory";
+            panelHistory.Size = new Size(240, 616);
+            panelHistory.TabIndex = 0;
+            // 
+            // btnErode
+            // 
+            btnErode.BackColor = Color.FromArgb(128, 255, 128);
+            btnErode.ImageAlign = ContentAlignment.MiddleLeft;
+            btnErode.Location = new Point(456, 35);
+            btnErode.Name = "btnErode";
+            btnErode.Size = new Size(75, 23);
+            btnErode.TabIndex = 10;
+            btnErode.Text = "Erode";
+            btnErode.UseVisualStyleBackColor = false;
+            btnErode.Click += this.btnErode_Click;
+            // 
+            // btnDilate
+            // 
+            btnDilate.BackColor = Color.FromArgb(128, 255, 128);
+            btnDilate.ImageAlign = ContentAlignment.MiddleLeft;
+            btnDilate.Location = new Point(537, 35);
+            btnDilate.Name = "btnDilate";
+            btnDilate.Size = new Size(75, 23);
+            btnDilate.TabIndex = 11;
+            btnDilate.Text = "Dilate";
+            btnDilate.UseVisualStyleBackColor = false;
+            btnDilate.Click += this.btnDilate_Click;
+            // 
+            // btnOpenMorph
+            // 
+            btnOpenMorph.BackColor = Color.FromArgb(128, 255, 128);
+            btnOpenMorph.ImageAlign = ContentAlignment.MiddleLeft;
+            btnOpenMorph.Location = new Point(618, 35);
+            btnOpenMorph.Name = "btnOpenMorph";
+            btnOpenMorph.Size = new Size(84, 24);
+            btnOpenMorph.TabIndex = 12;
+            btnOpenMorph.Text = "OpenMorph";
+            btnOpenMorph.UseVisualStyleBackColor = false;
+            btnOpenMorph.Click += this.btnOpenMorph_Click;
+            // 
+            // btnCloseMorph
+            // 
+            btnCloseMorph.BackColor = Color.FromArgb(128, 255, 128);
+            btnCloseMorph.ImageAlign = ContentAlignment.MiddleLeft;
+            btnCloseMorph.Location = new Point(708, 34);
+            btnCloseMorph.Name = "btnCloseMorph";
+            btnCloseMorph.Size = new Size(84, 24);
+            btnCloseMorph.TabIndex = 13;
+            btnCloseMorph.Text = "CloseMorph";
+            btnCloseMorph.UseVisualStyleBackColor = false;
+            btnCloseMorph.Click += btnCloseMorph_Click;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1188, 702);
-            Controls.Add(tableLayoutPanel1);
+            Controls.Add(splitMain);
             Controls.Add(panel1);
             Controls.Add(statusStrip1);
             Name = "MainForm";
@@ -228,6 +316,10 @@
             statusStrip1.ResumeLayout(false);
             statusStrip1.PerformLayout();
             tableLayoutPanel1.ResumeLayout(false);
+            splitMain.Panel1.ResumeLayout(false);
+            splitMain.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitMain).EndInit();
+            splitMain.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -249,5 +341,11 @@
         private Button btnSharpen;
         private Button btnCanny;
         private TableLayoutPanel tableLayoutPanel1;
+        private SplitContainer splitMain;
+        private Panel panelHistory;
+        private Button btnDilate;
+        private Button btnErode;
+        private Button btnCloseMorph;
+        private Button btnOpenMorph;
     }
 }
