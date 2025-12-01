@@ -49,6 +49,8 @@ namespace MiniVisionInspector.Forms
 
         }
 
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int SelectedThreshold
         {
             get => (int)numericThreshold.Value;
@@ -62,6 +64,8 @@ namespace MiniVisionInspector.Forms
             }
         }
 
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool BitInvert
         {
             get => checkBoxBitInverse.Checked;

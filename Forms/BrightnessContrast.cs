@@ -12,6 +12,8 @@ namespace MiniVisionInspector.Forms
 {
     public partial class BrightnessContrast : Form
     {
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int Brightness
         {
             get => (int)numericBrightness.Value;
@@ -25,6 +27,8 @@ namespace MiniVisionInspector.Forms
             }
         }
 
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int Contrast
         {
             get => (int)numericContrast.Value;

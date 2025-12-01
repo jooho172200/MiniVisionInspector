@@ -3,6 +3,8 @@ using MiniVisionInspector.Forms;
 using MiniVisionInspector.Models;
 using System.IO;
 using System.Drawing.Imaging;
+using System.ComponentModel;
+
 
 namespace MiniVisionInspector
 {
@@ -28,6 +30,7 @@ namespace MiniVisionInspector
         public MainForm()
         {
             InitializeComponent();
+            KeyPreview = true;
             toolStripStatusLabelInfo.Text = "이미지를 Open 버튼으로 불러오세요.";
         }
 
@@ -121,6 +124,25 @@ namespace MiniVisionInspector
             {
                 // 아직 가공된 이미지가 없다면 원본을 대신 보여줌
                 pictureBoxMain.Image = _currentImage ?? _originalImage;
+            }
+        }
+
+        private void ToggleOriginalView()
+        {
+            if (_originalImage is null) return;
+
+            _showOriginal = ! _showOriginal;
+            RefreshImage();
+
+            toolStripStatusLabelInfo.Text = _showOriginal ? "원본 이미지" : "처리 이미지";
+        }
+
+        private void MainForm_KeyDown(Object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Oem3 || e.KeyCode == Keys.Oemtilde)
+            {
+                ToggleOriginalView();
+                e.Handled = true;
             }
         }
 

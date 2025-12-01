@@ -322,6 +322,7 @@
             Controls.Add(statusStrip1);
             Name = "MainForm";
             Text = "Mini Vision Inspector";
+            KeyDown += MainForm_KeyDown;
             panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBoxMain).EndInit();
             statusStrip1.ResumeLayout(false);
