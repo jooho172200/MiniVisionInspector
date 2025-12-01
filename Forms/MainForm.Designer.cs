@@ -310,7 +310,7 @@
             listBoxHistory.Name = "listBoxHistory";
             listBoxHistory.Size = new Size(172, 529);
             listBoxHistory.TabIndex = 0;
-            listBoxHistory.SelectedIndexChanged += listBoxHistory_SelectedChanged;
+            listBoxHistory.SelectedValueChanged += listBoxHistory_SelectedValueChanged;
             // 
             // MainForm
             // 
