@@ -1,5 +1,6 @@
 using MiniVisionInspector.Services;
 using MiniVisionInspector.Forms;
+using MiniVisionInspector.Models;
 using System.IO;
 using System.Drawing.Imaging;
 
@@ -16,7 +17,9 @@ namespace MiniVisionInspector
         private int _lastBrightness = 0;
         private int _lastContrast = 0;
 
-        private readonly Stack<Bitmap> _history = new Stack<Bitmap>();
+        //private readonly Stack<Bitmap> _history = new Stack<Bitmap>();
+        private readonly List<HistoryStep> _historySteps = new();
+        private int _currentHistoryIndex = -1;
 
         // true  : 원본 이미지 표시
         // false : 현재(_currentImage) 이미지 표시
@@ -26,6 +29,77 @@ namespace MiniVisionInspector
         {
             InitializeComponent();
             toolStripStatusLabelInfo.Text = "이미지를 Open 버튼으로 불러오세요.";
+        }
+
+        private void ApplyNewImage(Bitmap newImage, string process)
+        {
+            if (_currentHistoryIndex < _historySteps.Count - 1)
+            {
+                for (int i = _historySteps.Count - 1; i > _currentHistoryIndex; i--)
+                {
+                    _historySteps[i].Image.Dispose();
+                    _historySteps.RemoveAt(i);
+                }
+            }
+
+            var step = new HistoryStep(process, newImage);
+            _historySteps.Add(step);
+            _currentHistoryIndex = _historySteps.Count - 1;
+
+            _currentImage = step.Image;
+            _showOriginal = false;
+
+            RefreshImage();
+            UpdateHistoryListBox();
+        }
+
+        private void UpdateHistoryListBox()
+        {
+            listBoxHistory.Items.Clear();
+
+            for (int i = 0; i < _historySteps.Count; i++)
+            {
+                listBoxHistory.Items.Add($"{i + 1}. {_historySteps[i].Process}");
+            }
+
+            UpdateHistoryListSelection();
+        }
+
+        private void UpdateHistoryListSelection()
+        {
+            if (_currentHistoryIndex >= 0 && _currentHistoryIndex < listBoxHistory.Items.Count)
+            {
+                listBoxHistory.SelectedIndex = _currentHistoryIndex;
+                listBoxHistory.TopIndex = _currentHistoryIndex;
+            }
+        }
+
+        //리스트박스 클릭 시 해당 단계로 이동
+        private void listBoxHistory_SelectedChanged(object sender, EventArgs e)
+        {
+            int idx = listBoxHistory.SelectedIndex;
+
+            if (idx < 0 || idx >= _historySteps.Count) return;
+
+            _currentHistoryIndex = idx;
+            _currentImage = _historySteps[idx].Image;
+            _showOriginal = false;
+
+            RefreshImage();
+            toolStripStatusLabelInfo.Text = $"line[{_historySteps[idx].Process}]";
+        }
+
+        //// 새 이미지 열 때, 히스토리 초기화
+        private void ClearHistory()
+        {
+            foreach (var step in _historySteps)
+            {
+                step.Image.Dispose();
+            }
+
+            _historySteps.Clear();
+            _currentHistoryIndex = -1;
+            listBoxHistory.Items.Clear();
         }
 
         /// <summary>
@@ -50,10 +124,6 @@ namespace MiniVisionInspector
             }
         }
 
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-        }
-
         private void btnOpen_Click(object sender, EventArgs e)
         {
             using (var ofd = new OpenFileDialog())
@@ -66,12 +136,19 @@ namespace MiniVisionInspector
                     _currentImage?.Dispose();
 
                     _originalImage = new Bitmap(ofd.FileName);
-                    _currentImage = (Bitmap)_originalImage.Clone();
 
                     ClearHistory();
-                    _showOriginal = false;   // 기본은 가공 이미지 모드
+
+                    var firstImage = (Bitmap)_originalImage.Clone();
+                    var step = new HistoryStep("Source Image", firstImage);
+                    _historySteps.Add(step);
+                    _currentHistoryIndex = 0;
+
+                    _currentImage = step.Image;
+                    _showOriginal = false;
 
                     RefreshImage();
+                    UpdateHistoryListBox();
 
                     toolStripStatusLabelInfo.Text = $"이미지 로드: {ofd.FileName}";
                 }
@@ -80,17 +157,24 @@ namespace MiniVisionInspector
 
         private void btnReset_Click(object sender, EventArgs e)
         {
-            if (_originalImage is null)
+            if (_originalImage is null || _historySteps.Count == 0)
             {
                 toolStripStatusLabelInfo.Text = "원본 이미지가 없습니다";
                 return;
             }
 
-            _currentImage?.Dispose();
-            _currentImage = (Bitmap)_originalImage.Clone();
+            ClearHistory();
+
+            var firstImage = (Bitmap)_originalImage.Clone();
+            var step = new HistoryStep("Source Image", firstImage);
+            _historySteps.Add(step);
+
+            _currentHistoryIndex = 0;
+            _currentImage = step.Image;
             _showOriginal = false;
 
             RefreshImage();
+            UpdateHistoryListBox();
 
             toolStripStatusLabelInfo.Text = "변경 사항 폐기 완료";
         }
@@ -103,15 +187,10 @@ namespace MiniVisionInspector
                 return;
             }
 
-            PushHistory();
+            var src = _currentImage ?? _originalImage;
+            var processed = ImageProcessor.ToGrayScale(src);
 
-            var src = _currentImage;
-            _currentImage = ImageProcessor.ToGrayScale(src);
-            src.Dispose();
-
-            _showOriginal = false;
-            RefreshImage();
-
+            ApplyNewImage(processed, "GrayScale");
             toolStripStatusLabelInfo.Text = "그레이스케일 변환 완료";
         }
 
@@ -139,15 +218,10 @@ namespace MiniVisionInspector
                 _lastThreshold = th;
                 _lastInvert = invert;
 
-                PushHistory();
+                var src = _currentImage ?? _originalImage;
+                var processed = ImageProcessor.Threshold(src, th, invert);
 
-                var src = _currentImage;
-                _currentImage = ImageProcessor.Threshold(src, th, invert);
-                src.Dispose();
-
-                _showOriginal = false;
-                RefreshImage();
-
+                ApplyNewImage(processed, "Binary");
                 toolStripStatusLabelInfo.Text = $"이진화(threshold = {th}) 완료";
             }
         }
@@ -254,7 +328,7 @@ namespace MiniVisionInspector
 
         private void btnBrightnessContrast_Click(object sender, EventArgs e)
         {
-            if (_currentImage is null)
+            if (_currentImage is null && _originalImage is null)
             {
                 toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요.";
                 return;
@@ -274,193 +348,139 @@ namespace MiniVisionInspector
                 _lastBrightness = b;
                 _lastContrast = c;
 
-                PushHistory();
+                var src = _currentImage ?? _originalImage;
+                var processed = ImageProcessor.AdjustBrightnessContrast(src, b, c);
 
-                var src = _currentImage;
-                _currentImage = ImageProcessor.AdjustBrightnessContrast(src, b, c);
-                src.Dispose();
-
-                _showOriginal = false;
-                RefreshImage();
-
+                ApplyNewImage(processed, $"Brightness = {b}/Contrast = {c}");
                 toolStripStatusLabelInfo.Text = $"밝기={b}, 대비={c} 적용완료";
-            }
-        }
-
-        // 현재 이미지를 히스토리에 저장
-        private void PushHistory()
-        {
-            if (_currentImage is not null)
-            {
-                _history.Push((Bitmap)_currentImage.Clone());
-            }
-        }
-
-        // 새 이미지 열 때, 히스토리 초기화
-        private void ClearHistory()
-        {
-            while (_history.Count > 0)
-            {
-                var bmp = _history.Pop();
-                bmp.Dispose();
             }
         }
 
         private void btnUndo_Click(object sender, EventArgs e)
         {
-            if (_history.Count == 0)
+            if (_currentHistoryIndex <= 0)
             {
                 toolStripStatusLabelInfo.Text = "되돌릴 작업이 없습니다";
                 return;
             }
 
-            _currentImage?.Dispose();
-            _currentImage = _history.Pop();
+            var stepToRemove = _historySteps[_currentHistoryIndex];
+            stepToRemove.Image.Dispose();
+            _historySteps.RemoveAt(_currentHistoryIndex);
 
+            _currentHistoryIndex--;
+            _currentImage = _historySteps[_currentHistoryIndex].Image;
             _showOriginal = false;
+
             RefreshImage();
+            UpdateHistoryListBox();
 
             toolStripStatusLabelInfo.Text = "Undo 완료";
         }
 
         private void btnBlur_Click(object sender, EventArgs e)
         {
-            if (_currentImage is null)
+            if (_currentImage is null && _originalImage is null)
             {
                 toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요.";
                 return;
             }
 
-            PushHistory();
+            var src = _currentImage ?? _originalImage;
+            var processed = ImageProcessor.Blur(src);
 
-            var src = _currentImage;
-            _currentImage = ImageProcessor.Blur(src);
-            src.Dispose();
-
-            _showOriginal = false;
-            RefreshImage();
-
+            ApplyNewImage(processed, "Blur");
             toolStripStatusLabelInfo.Text = "3x3  평균 블러 적용 완료";
         }
 
         private void btnSharpen_Click(object sender, EventArgs e)
         {
-            if (_currentImage is null)
+            if (_currentImage is null && _originalImage is null)
             {
                 toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
                 return;
             }
 
-            PushHistory();
+            var src = _currentImage ?? _originalImage;
+            var processed = ImageProcessor.Sharpen(src);
 
-            var src = _currentImage;
-            _currentImage = ImageProcessor.Sharpen(src);
-            src.Dispose();
-
-            _showOriginal = false;
-            RefreshImage();
-
+            ApplyNewImage(processed, "Sharpening");
             toolStripStatusLabelInfo.Text = "샤프닝 필터 적용 완료";
         }
 
         // OpenCV
         private void btnCanny_Click(object sender, EventArgs e)
         {
-            if (_currentImage is null)
+            if (_currentImage is null && _originalImage is null)
             {
                 toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
                 return;
             }
 
-            PushHistory();
+            var src = _currentImage ?? _originalImage;
+            var processed = ImageProcessor.Canny(src, 100, 200);
 
-            var src = _currentImage;
-            _currentImage = ImageProcessor.Canny(src, 100, 200);
-            src.Dispose();
-
-            _showOriginal = false;
-            RefreshImage();
-
+            ApplyNewImage(processed, "Canny");
             toolStripStatusLabelInfo.Text = "Canny 엣지 검출 완료";
         }
 
         private void btnErode_Click(object sender, EventArgs e)
         {
-            if (_currentImage is null)
+            if (_currentImage is null && _originalImage is null)
             {
                 toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
                 return;
             }
 
-            PushHistory();
+            var src = _currentImage ?? _originalImage;
+            var processed = ImageProcessor.Erode(src);
 
-            var src = _currentImage;
-            _currentImage = ImageProcessor.Erode(src);
-            src.Dispose();
-
-            _showOriginal = false;
-            RefreshImage();
-
+            ApplyNewImage(processed, "Erode");
             toolStripStatusLabelInfo.Text = "Erode 적용 완료";
         }
 
         private void btnDilate_Click(object sender, EventArgs e)
         {
-            if (_currentImage is null)
+            if (_currentImage is null && _originalImage is null)
             {
                 toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
                 return;
             }
 
-            PushHistory();
+            var src = _currentImage ?? _originalImage;
+            var processed = ImageProcessor.Dilate(src, 3);
 
-            var src = _currentImage;
-            _currentImage = ImageProcessor.Dilate(src, 3);
-            src.Dispose();
-
-            _showOriginal = false;
-            RefreshImage();
-
+            ApplyNewImage(processed, "Dilate");
             toolStripStatusLabelInfo.Text = "Dilate 적용 완료";
         }
 
         private void btnOpenMorph_Click(object sender, EventArgs e)
         {
-            if (_currentImage is null)
+            if (_currentImage is null && _originalImage is null)
             {
                 toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
                 return;
             }
 
-            PushHistory();
+            var src = _currentImage ?? _originalImage;
+            var processed = ImageProcessor.OpenMorph(src, 3);
 
-            var src = _currentImage;
-            _currentImage = ImageProcessor.OpenMorph(src, 3);
-            src.Dispose();
-
-            _showOriginal = false;
-            RefreshImage();
-
+            ApplyNewImage(processed, "OpenMorph");
             toolStripStatusLabelInfo.Text = "Open 모폴로지 적용 완료";
         }
 
         private void btnCloseMorph_Click(object sender, EventArgs e)
         {
-            if (_currentImage is null)
+            if (_currentImage is null && _originalImage is null)
             {
                 toolStripStatusLabelInfo.Text = "이미지를 먼저 열어주세요";
                 return;
             }
 
-            PushHistory();
+            var src = _currentImage ?? _originalImage;
+            var processed = ImageProcessor.CloseMorph(src, 3);
 
-            var src = _currentImage;
-            _currentImage = ImageProcessor.CloseMorph(src, 3);
-            src.Dispose();
-
-            _showOriginal = false;
-            RefreshImage();
-
+            ApplyNewImage(processed, "CloseMorph");
             toolStripStatusLabelInfo.Text = "Close 모폴로지 적용 완료";
         }
     }
