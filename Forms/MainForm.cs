@@ -32,7 +32,7 @@ namespace MiniVisionInspector
             KeyPreview = true;
             toolStripStatusLabelInfo.Text = "이미지를 Open 버튼으로 불러오세요.";
         }
-                
+
         /// 히스토리에 새 스텝 추가(연산 단위로 기록)
         private void ApplyNewStep(string process, Func<Bitmap, Bitmap> operation)
         {
@@ -42,34 +42,50 @@ namespace MiniVisionInspector
                 return;
             }
 
-            // 히스토리가 비어있으면 Source 스텝 생성
+            // 아직 Source step 이 없다면 한 번만 만들어둔다.
             if (_historySteps.Count == 0)
             {
-                var sourceStep = new HistoryStep("Source Image", null);
-                _historySteps.Add(sourceStep);
+                var srcStep = new HistoryStep("Source Image", null)
+                {
+                    Image = (Bitmap)_originalImage.Clone()
+                };
+                _historySteps.Add(srcStep);
                 _currentHistoryIndex = 0;
             }
 
-            // 현재 단계 바로 뒤에 삽입 (중간 삽입 가능)
-            int insertIndex = (_currentHistoryIndex < 0)
-                ? _historySteps.Count
-                : _currentHistoryIndex + 1;
+            // 1) 현재 선택된 단계 이후의 히스토리는 전부 버림 (브랜치 끊기)
+            int nextIndex = _currentHistoryIndex + 1;
+            for (int i = _historySteps.Count - 1; i >= nextIndex; i--)
+            {
+                _historySteps[i].Image?.Dispose();
+                _historySteps.RemoveAt(i);
+            }
 
-            var step = new HistoryStep(process, operation);
+            // 2) 현재 이미지에서 새 스텝 한 번만 계산
+            var baseImage = _historySteps[_currentHistoryIndex].Image
+                            ?? (Bitmap)_originalImage.Clone();
 
-            if (insertIndex >= _historySteps.Count)
-                _historySteps.Add(step);
-            else
-                _historySteps.Insert(insertIndex, step);
+            // 여기서는 "스냅샷"을 남기기 위해 Clone을 한 번만 함
+            Bitmap src = (Bitmap)baseImage.Clone();
+            Bitmap result = operation(src);
 
-            _currentHistoryIndex = insertIndex;
+            if (!ReferenceEquals(result, src))
+                src.Dispose();
 
-            RebuildHistoryImages();
+            var step = new HistoryStep(process, operation)
+            {
+                Image = result
+            };
+
+            _historySteps.Add(step);
+            _currentHistoryIndex = _historySteps.Count - 1;
+            _currentImage = step.Image;
 
             _showOriginal = false;
             RefreshImage();
             UpdateHistoryListBox();
         }
+
 
 
         /// 원본 이미지와 HistoryStep.Operation들을 이용해서
@@ -226,11 +242,14 @@ namespace MiniVisionInspector
                     ClearHistory();
 
                     // 0번 스텝: Source Image (연산 없음)
-                    var step = new HistoryStep("Source Image", null);
+                    var step = new HistoryStep("Source Image", null)
+                    {
+                        Image = (Bitmap)_originalImage.Clone()
+                    };
+
                     _historySteps.Add(step);
                     _currentHistoryIndex = 0;
-
-                    RebuildHistoryImages();
+                    _currentImage = step.Image;
 
                     _showOriginal = false;
                     RefreshImage();
