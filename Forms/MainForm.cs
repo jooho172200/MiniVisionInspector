@@ -32,10 +32,8 @@ namespace MiniVisionInspector
             KeyPreview = true;
             toolStripStatusLabelInfo.Text = "이미지를 Open 버튼으로 불러오세요.";
         }
-
-        /// <summary>
+                
         /// 히스토리에 새 스텝 추가(연산 단위로 기록)
-        /// </summary>
         private void ApplyNewStep(string process, Func<Bitmap, Bitmap> operation)
         {
             if (_originalImage is null)
@@ -44,22 +42,28 @@ namespace MiniVisionInspector
                 return;
             }
 
-            // 1) 현재 인덱스 뒤에 브랜치가 남아 있다면 잘라내기
-            if (_currentHistoryIndex < _historySteps.Count - 1)
+            // 히스토리가 비어있으면 Source 스텝 생성
+            if (_historySteps.Count == 0)
             {
-                for (int i = _historySteps.Count - 1; i > _currentHistoryIndex; i--)
-                {
-                    _historySteps[i].Image?.Dispose();
-                    _historySteps.RemoveAt(i);
-                }
+                var sourceStep = new HistoryStep("Source Image", null);
+                _historySteps.Add(sourceStep);
+                _currentHistoryIndex = 0;
             }
 
-            // 2) 스텝 추가 (이미지는 나중에 RebuildHistoryImages에서 계산)
-            var step = new HistoryStep(process, operation);
-            _historySteps.Add(step);
-            _currentHistoryIndex = _historySteps.Count - 1;
+            // 현재 단계 바로 뒤에 삽입 (중간 삽입 가능)
+            int insertIndex = (_currentHistoryIndex < 0)
+                ? _historySteps.Count
+                : _currentHistoryIndex + 1;
 
-            // 3) 원본 + 모든 연산을 다시 적용해서 이미지 재계산
+            var step = new HistoryStep(process, operation);
+
+            if (insertIndex >= _historySteps.Count)
+                _historySteps.Add(step);
+            else
+                _historySteps.Insert(insertIndex, step);
+
+            _currentHistoryIndex = insertIndex;
+
             RebuildHistoryImages();
 
             _showOriginal = false;
@@ -67,10 +71,9 @@ namespace MiniVisionInspector
             UpdateHistoryListBox();
         }
 
-        /// <summary>
+
         /// 원본 이미지와 HistoryStep.Operation들을 이용해서
         /// 0번 스텝부터 순서대로 이미지 다시 계산
-        /// </summary>
         private void RebuildHistoryImages()
         {
             if (_originalImage is null || _historySteps.Count == 0)
@@ -165,9 +168,7 @@ namespace MiniVisionInspector
             pictureBoxMain.Image = null;
         }
 
-        /// <summary>
         /// 현재 상태(_showOriginal)에 맞게 pictureBoxMain에 이미지 표시
-        /// </summary>
         private void RefreshImage()
         {
             if (_originalImage is null)
